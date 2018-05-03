@@ -35,7 +35,7 @@ export default class Client {
 		this.handler = handler;
 	}
 
-	public sendMessage(message : Message, cb?: Function) : boolean {
-		return this.gamesocket.write(message.toNetworkString(), cb);
+	public sendMessage(message : Message) : boolean {
+		return this.gamesocket.write(message.toNetworkString())
 	}
 }

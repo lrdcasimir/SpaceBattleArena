@@ -1,3 +1,4 @@
+import ShipCommand from "../command/ShipCommand";
 
 export default class Message {
 	id: [number, number];
@@ -13,9 +14,13 @@ export default class Message {
 	public toNetworkString() : string {
 		const idString = JSON.stringify(this.id);
 		const command  = JSON.stringify(this.command);
-		const data = JSON.stringify(this.data);
+		const data = this.data.getMessageData ? JSON.stringify(this.data.getMessageData()) : JSON.stringify(this.data);
 		const message = `${idString},${command},${data}`;
 		return `${message.length}${message}`;
+	}
+
+	public static fromCommand(shipId : number, command : ShipCommand) : Message  {
+		return new Message([shipId, 0], "SCMD", command.getMessageData())
 	}
 
 	static parse (packet: string) : Message {

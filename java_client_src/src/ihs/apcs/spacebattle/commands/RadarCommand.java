@@ -49,7 +49,7 @@ public class RadarCommand extends ShipCommand {
 	 *   details on a particular target.  This is a level 3 sweep.
 	 * @param level the level of sweep to perform <b><i>(Must be 3)</i></b> 
 	 * @param target the id number of the target to scan
-	 */
+	 */	
 	public RadarCommand(int level, int target) {
 		if (level != 3)
 			throw new IllegalArgumentException("Invalid radar level: only radar level 3 accepts a target");

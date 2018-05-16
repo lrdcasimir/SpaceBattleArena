@@ -8,7 +8,7 @@ import World from "./game/World";
 import Thrust from "./command/Thrust";
 import Radar from "./command/Radar";
 
-const gamesocket = net.connect(2012, 'localhost',() => {
+const gamesocket = net.connect(2012, '10.30.3.225',() => {
 	console.log("connected");
 })
 

@@ -8,3 +8,4 @@
 .coverage
 .coverage.*
 /coverage_html_report/
+.vscode

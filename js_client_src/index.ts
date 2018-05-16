@@ -8,7 +8,7 @@ import World from "./game/World";
 import Thrust from "./command/Thrust";
 import Radar from "./command/Radar";
 
-const gamesocket = net.connect(2012, '10.30.3.225',() => {
+const gamesocket = net.connect(2012, '10.30.35.146', () => {
 	console.log("connected");
 })
 
@@ -16,13 +16,13 @@ const client = new Client(gamesocket);
 const ship = new Ship(client);
 ship.on("register", (world : World) => {
 	console.log("on register");
-	return new ShipRegistration("Mal", 0, [128, 0, 255]);
+	return new ShipRegistration("Mal", 1, [128, 0, 255]);
 })
 let useRadar: boolean = false
 ship.on("nextCommand", (env) =>  {
 	if(!useRadar) {
 		useRadar = true;
-		return new Thrust('F', 3.2, 0.9, true)
+		return new Thrust('B', 3.2, 0.9, true)
 		
 	} else {
 		useRadar = false;

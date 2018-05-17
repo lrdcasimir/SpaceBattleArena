@@ -8,6 +8,7 @@ import World from "./game/World";
 import Thrust from "./command/Thrust";
 import Radar from "./command/Radar";
 import Rotate from "./command/Rotate";
+import Point from "./game/Point";
 
 const gamesocket = net.connect(2012, 'localhost', () => {
 	console.log("connected");
@@ -22,6 +23,9 @@ ship.on("register", (world : World) => {
 let useRadar: boolean = false
 let useThrust: boolean = false
 ship.on("nextCommand", (env) =>  {
+	if(env.radardata.objects.length > 0) {
+		console.log(cartesianDistance(env.radardata.objects[0].position, env.shipdata.position))
+	}
 	if(!useRadar && !useThrust) {
 		useThrust = true;
 		return new Rotate(45)
@@ -35,4 +39,10 @@ ship.on("nextCommand", (env) =>  {
 		return new Radar(2);
 	}
 });
+
+function cartesianDistance(a: Point, b: Point) {
+	const dx = a.x - b.x
+	const dy = a.y - b.y
+	return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2))
+}
 ship.launch()

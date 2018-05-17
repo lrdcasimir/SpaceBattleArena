@@ -48,7 +48,12 @@ export default class Message {
 	};
 
 	private static getCommand (message : string) : string {
-		return JSON.parse(message.substring(message.indexOf(']') + 2, message.indexOf('"', message.indexOf('"') + 1) + 1));
+		try {
+			return JSON.parse(message.substring(message.indexOf(']') + 2, message.indexOf('"', message.indexOf('"') + 1) + 1));
+		} catch(e) {
+			console.error(e)
+			console.error(message)
+		}
 	};
 
 	private static getData(message : string, commandLength : number) : string { 

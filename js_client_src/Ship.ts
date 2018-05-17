@@ -53,7 +53,7 @@ export default class Ship {
 				}
 				if(message.command == 'ENV') {
 					if(this.commandHandler != null) {
-						const env = new Environment();
+						const env = Environment.fromMessage(message.data)
 						const cmd = this.commandHandler(env);
 						const m = Message.fromCommand(this.id, cmd);
 						this.sendMessage(m);

@@ -7,8 +7,9 @@ import ShipRegistration from "./ShipRegistration";
 import World from "./game/World";
 import Thrust from "./command/Thrust";
 import Radar from "./command/Radar";
+import Rotate from "./command/Rotate";
 
-const gamesocket = net.connect(2012, '10.30.35.146', () => {
+const gamesocket = net.connect(2012, 'localhost', () => {
 	console.log("connected");
 })
 
@@ -19,13 +20,18 @@ ship.on("register", (world : World) => {
 	return new ShipRegistration("Mal", 1, [128, 0, 255]);
 })
 let useRadar: boolean = false
+let useThrust: boolean = false
 ship.on("nextCommand", (env) =>  {
-	if(!useRadar) {
-		useRadar = true;
-		return new Thrust('B', 3.2, 0.9, true)
+	if(!useRadar && !useThrust) {
+		useThrust = true;
+		return new Rotate(45)
 		
-	} else {
+	} else if(!useRadar) {
+		useRadar = true
+		return new Thrust("B", 3.1, 0.9, true)
+	}else {
 		useRadar = false;
+		useThrust = false;
 		return new Radar(2);
 	}
 });

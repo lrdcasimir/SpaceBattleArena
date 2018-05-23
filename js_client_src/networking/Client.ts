@@ -16,10 +16,16 @@ export default class Client {
 			let remaining = packet;
 			
 			while(remaining.length > 0){
-				let message = Message.parse(remaining);
-				this.push(message)
-				console.log(message)
-				remaining = remaining.substring(remaining.indexOf('[') + message.length)
+				try {
+					let message = Message.parse(remaining);
+					this.push(message)
+					remaining = remaining.substring(remaining.indexOf('[') + message.length)
+				} catch (e) {
+					console.error(remaining)
+					console.error(e.stack)
+					break;
+				}
+				
 			}
 			callback()
 		})).on("data", (message : Message) => {

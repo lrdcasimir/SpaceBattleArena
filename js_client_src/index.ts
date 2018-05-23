@@ -9,6 +9,7 @@ import Thrust from "./command/Thrust";
 import Radar from "./command/Radar";
 import Rotate from "./command/Rotate";
 import Point from "./game/Point";
+import Steer from "./command/Steer";
 
 const gamesocket = net.connect(2012, 'localhost', () => {
 	console.log("connected");
@@ -17,14 +18,15 @@ const gamesocket = net.connect(2012, 'localhost', () => {
 const client = new Client(gamesocket);
 const ship = new Ship(client);
 ship.on("register", (world : World) => {
-	console.log("on register");
+	console.log("registered")
 	return new ShipRegistration("Mal", 1, [128, 0, 255]);
 })
 let useRadar: boolean = false
 let useThrust: boolean = false
+let useSteer: boolean = false
 ship.on("nextCommand", (env) =>  {
-	if(env.radardata.objects.length > 0) {
-		console.log(cartesianDistance(env.radardata.objects[0].position, env.shipdata.position))
+	if(env.radardata && env.radardata.objects.length > 0) {
+		console.log("cartesian distance: " + cartesianDistance(env.radardata.objects[0].position, env.shipdata.position))
 	}
 	if(!useRadar && !useThrust) {
 		useThrust = true;
@@ -33,10 +35,14 @@ ship.on("nextCommand", (env) =>  {
 	} else if(!useRadar) {
 		useRadar = true
 		return new Thrust("B", 3.1, 0.9, true)
-	}else {
-		useRadar = false;
-		useThrust = false;
+	} else if(!useSteer) {
+		useSteer = true
 		return new Radar(2);
+	} else {
+		useRadar = false
+		useThrust = false
+		useSteer = false
+		return new Steer(-20, false)
 	}
 });
 

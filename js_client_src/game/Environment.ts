@@ -11,7 +11,7 @@ export default class Environment {
 		return {
 			messages: env.MESSAGES,
 			radarlevel: env.RADARLEVEL as number,
-			radardata: RadarResults.fromMessage(env.RADARDATA),
+			radardata: env.RADARDATA == null ? null : RadarResults.fromMessage(env.RADARDATA),
 			shipdata: {
 				id: env.SHIPDATA.ID as number,
 				position: {

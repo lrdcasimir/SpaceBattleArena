@@ -34,7 +34,6 @@ export default class Ship {
 
 	public launch(){
 		this.client.on("message", (message : Message) => {
-			console.log("ship message ", message);
 			try { 
 				if(message.command == "MWNL2_ASSIGNMENT") {
 					console.log("id of: ", message.data);
@@ -54,12 +53,20 @@ export default class Ship {
 				if(message.command == 'ENV') {
 					if(this.commandHandler != null) {
 						const env = Environment.fromMessage(message.data)
-						const cmd = this.commandHandler(env);
-						const m = Message.fromCommand(this.id, cmd);
-						this.sendMessage(m);
+						try {
+							const cmd = this.commandHandler(env);
+							const m = Message.fromCommand(this.id, cmd);
+							this.sendMessage(m);
+						} catch (e) {
+							console.error(message.data)
+							console.error(e.stack)
+						}
+						
+						
 					}
 				}
 			} catch(e) {
+				console.error(e)
 				return false;
 			}		
 		})

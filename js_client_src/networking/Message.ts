@@ -1,4 +1,5 @@
 import ShipCommand from "../command/ShipCommand";
+import * as winston from 'winston';
 
 export default class Message {
 	id: [number, number];
@@ -23,12 +24,16 @@ export default class Message {
 		return new Message([shipId, 0], "SCMD", command.getMessageData())
 	}
 
-	static parse (packet: string) : Message {
+	static parse (packet: string) : Message | string {
 		const messageLength = Message.getMessageLength(packet);
+		if(packet.substr(packet.indexOf('[')).length < messageLength){
+			winston.debug(`message length ${messageLength}, packet length ${packet.substr(packet.indexOf('[')).length}`)
+			return packet
+		}
 		const messageString = Message.getMessageString(packet, messageLength);
 		const command = Message.getCommand(messageString);
 		return new Message( Message.getMessageId(messageString),
-			command, Message.getData(messageString, command.length),
+			command, Message.getData(messageString, command.length, messageLength),
 			messageLength);
 	}
 
@@ -56,9 +61,9 @@ export default class Message {
 		}
 	};
 
-	private static getData(message : string, commandLength : number) : string { 
+	private static getData(message : string, commandLength : number, messageLength: number) : string { 
 		const idLength = message.indexOf(']') + 1
-		return message.substring(idLength + commandLength + 4);
+		return message.substring(idLength + commandLength + 4, messageLength);
 	}
 
 }

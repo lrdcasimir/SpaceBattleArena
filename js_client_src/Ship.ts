@@ -5,16 +5,17 @@ import Message from "./networking/Message";
 import Request from "./networking/Request";
 import ShipCommand from "./command/ShipCommand";
 import Environment from "./game/Environment";
+import * as winston from 'winston';
 
 type RegisterHandler = (world : World) => ShipRegistration;
 type NextCommandHandler = (env : Environment) => ShipCommand;
-
+type DisconnectHandler = () => any
 export default class Ship {
 	private client : Client;
 	private id? : number|null;
 	private registerHandler? : (world : World) => ShipRegistration;
 	private commandHandler? : (env : Environment) => ShipCommand;
-	
+	private disconnectHandler? : () => any
 	constructor(client : Client) {
 		this.client = client
 	}
@@ -22,6 +23,7 @@ export default class Ship {
 	
 	public on(event: "register", handler : RegisterHandler);
 	public on(event: "nextCommand", handler : NextCommandHandler);
+	public on(event: "disconnect", hand)
 	public on(event: string, handler: RegisterHandler|NextCommandHandler) {
 		if(event == "register") {
 			this.registerHandler = <RegisterHandler>handler;
@@ -29,11 +31,15 @@ export default class Ship {
 		if(event == "nextCommand") {
 			this.commandHandler = <NextCommandHandler>handler;
 		}
+		if(event == "disconnect") {
+			this.disconnectHandler = <DisconnectHandler>handler;
+		}
 		
 	}
 
 	public launch(){
 		this.client.on("message", (message : Message) => {
+			winston.silly(`SHIP MESSAGE: ${JSON.stringify(message)}`)
 			try { 
 				if(message.command == "MWNL2_ASSIGNMENT") {
 					console.log("id of: ", message.data);
@@ -60,9 +66,16 @@ export default class Ship {
 						} catch (e) {
 							console.error(message.data)
 							console.error(e.stack)
-						}
-						
-						
+						}	
+					}
+				}
+				if(message.command == 'ERROR') {
+					winston.error(message.data)
+				}
+				if(message.command == "MWNL2_DISCONNECT"){
+					winston.error("disconnect");
+					if(this.disconnectHandler) {
+						this.disconnectHandler()
 					}
 				}
 			} catch(e) {

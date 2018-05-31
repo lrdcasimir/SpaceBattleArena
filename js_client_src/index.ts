@@ -1,3 +1,10 @@
+import * as winston from 'winston';
+winston.configure({
+	level: 'info',
+	transports : [
+		new winston.transports.Console()
+	]
+})
 import * as net from "net";
 import * as through2 from "through2";
 import Message from './networking/Message';

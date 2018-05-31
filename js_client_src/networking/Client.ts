@@ -1,7 +1,7 @@
 import Message from "./Message";
 import { Socket } from "net";
 import * as through2 from "through2";
-
+import * as winston from "winston";
 export default class Client {
 	private gamesocket : Socket;
 	private handler? : ((message : Message) => boolean)|null;
@@ -11,15 +11,26 @@ export default class Client {
 		
 	}
 	public init() {
+		let last = ""
 		this.gamesocket.pipe(through2.obj(function (chunk, enc, callback)  {
 			const packet : string = chunk.toString('utf8')
-			let remaining = packet;
+			winston.debug(`packet length ${packet.length}`)
+			let remaining = (last + packet);
 			
 			while(remaining.length > 0){
 				try {
 					let message = Message.parse(remaining);
-					this.push(message)
-					remaining = remaining.substring(remaining.indexOf('[') + message.length)
+					if(typeof message === "string") {
+						winston.debug(`accum len ${last.length}, returned message length ${message.length}`)
+						last = message
+						remaining = ""
+					} else {
+						last = ""
+						this.push(message)
+						remaining = remaining.substring(remaining.indexOf('[') + message.length)
+						winston.debug(`remaining after parse ${remaining.length}`)
+					}
+					
 				} catch (e) {
 					console.error(remaining)
 					console.error(e.stack)
@@ -28,6 +39,7 @@ export default class Client {
 				
 			}
 			callback()
+			
 		})).on("data", (message : Message) => {
 			if(this.handler != null){
 				this.handler(message);

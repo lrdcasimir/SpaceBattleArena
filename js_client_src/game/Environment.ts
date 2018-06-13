@@ -16,20 +16,7 @@ export default class Environment {
 				messages: env.MESSAGES,
 				radarlevel: env.RADARLEVEL as number,
 				radardata: env.RADARDATA == null ? null : RadarResults.fromMessage(env.RADARDATA),
-				shipdata: {
-					id: env.SHIPDATA.ID as number,
-					position: {
-						x: env.SHIPDATA.POSITION[0],
-						y: env.SHIPDATA.POSITION[1]
-					},
-					rotation: env.SHIPDATA.ROTATION || null,
-					rotationSpeed: env.SHIPDATA.ROTATIONSPEED || null,
-					currentEnergy: env.SHIPDATA.CURENERGY !== undefined ? env.SHIPDATA.CURENERGY : null,
-					currentShield: env.SHIPDATA.CURSHIELD || null,
-					inBody: env.SHIPDATA.INBODY || null,
-					speed: env.SHIPDATA.SPEED !== undefined ? env.SHIPDATA.SPEED : null,
-					maxSpeed: env.SHIPDATA.MAXSPEED || null
-				}
+				shipdata: ObjectStatus.fromMessage(env.SHIPDATA)
 			}
 		} catch (e) {
 			winston.error(e)

@@ -6,24 +6,13 @@ import World from "../game/World";
 import Thrust from "../command/Thrust";
 import Radar from "../command/Radar";
 import Rotate from "../command/Rotate";
-import Point from "../game/Point";
+import {Point, targetVector, cartesianDistance} from "../game/Point";
 import Steer from "../command/Steer";
 import * as winston from 'winston';
 import Idle from '../command/Idle';
 import Environment from '../game/Environment';
 import FireTorpedo from '../command/FireTorpedo';
 
-let targetVector = (ship : Point, target : Point) => {
-	let deltax = target.x - ship.x
-	let deltay = target.y - ship.y
-	return Math.atan2(deltay, deltax)
-}
-
-let cartesianDistance = (ship : Point, target : Point) => {
-	let xsq = Math.pow(ship.x - target.x, 2)
-	let ysq = Math.pow(ship.y - target.y, 2)
-	return Math.sqrt(xsq + ysq)
-}
 winston.configure({
 	level: "info",
 	transports: [new winston.transports.Console()]

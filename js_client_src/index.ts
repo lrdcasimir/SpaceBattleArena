@@ -15,7 +15,8 @@ import World from "./game/World";
 import Thrust from "./command/Thrust";
 import Radar from "./command/Radar";
 import Rotate from "./command/Rotate";
-import { Point, cartesianDistance, targetVector } from "./game/Point";
+import Point from "./game/Point";
+import {cartesianDistance, targetVector } from "./game/Point";
 import Steer from "./command/Steer";
 
 const gamesocket = net.connect(2012, 'localhost', () => {

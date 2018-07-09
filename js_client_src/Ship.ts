@@ -42,7 +42,7 @@ export default class Ship {
 			winston.silly(`SHIP MESSAGE: ${JSON.stringify(message)}`)
 			try { 
 				if(message.command == "MWNL2_ASSIGNMENT") {
-					console.log("id of: ", message.data);
+					winston.info("id of: ", message.data);
 					this.id = parseInt(message.data, 10);
 					return true;
 				}
@@ -64,8 +64,8 @@ export default class Ship {
 							const m = Message.fromCommand(this.id, cmd);
 							this.sendMessage(m);
 						} catch (e) {
-							console.error(message.data)
-							console.error(e.stack)
+							winston.error(message.data)
+							winston.error(e.stack)
 						}	
 					}
 				}

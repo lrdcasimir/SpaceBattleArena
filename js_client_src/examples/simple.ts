@@ -27,18 +27,21 @@ let ship = new Ship(client)
 let initialRotation = null
 let scanned = false
 let aggro = false
-let evade = false;
+let evade = false
+let evadeAngle : number = 0
 ship.on("register", (world) => {
 	initialRotation = null
 	scanned = false
 	aggro = false
-	return new ShipRegistration("Jean Luc Picard A", 3, [100, 0, 256])
+	return new ShipRegistration("Jean Luc Picard", 3, [100, 0, 256])
 
 })
 ship.on("disconnect", () => process.exit(0))
 ship.on("nextCommand", (env: Environment) => {
-	if(env.shipdata.currentEnergy && env.shipdata.currentEnergy < 4) {
+	if(env.shipdata.currentEnergy && env.shipdata.currentEnergy < 8) {
 		winston.error("idle")
+		aggro = false
+		scanned = false
 		return new Idle(2.1)
 	}
 	if(!scanned) {
@@ -51,7 +54,10 @@ ship.on("nextCommand", (env: Environment) => {
 		let closest = env.radardata.objects
 			
 			.reduce((last, next) => {
-				winston.debug(`last: ${JSON.stringify(last)} next: ${JSON.stringify(next)}`)
+				winston.debug(`last: ${JSON.stringify(last)} next: ${JSON.stringify(next)}, type ${next.type}  `)
+				if(last != null) {
+					winston.error(`closest ${cartesianDistance(shipPosition, last.position)}`)
+				}
 				return last == null ? next :  cartesianDistance(shipPosition, last.position) < cartesianDistance(shipPosition, next.position) ? 
 					last : next
 			 }, null)
@@ -61,10 +67,11 @@ ship.on("nextCommand", (env: Environment) => {
 				process.stderr.write(JSON.stringify(e.stack))
 			}
 		})
-		if(closest.type == 'Asteroid') {
+		if(closest.type == 'Asteroid' || closest.type == 'Torpedo') {
 			aggro = true
 		} else {
 			evade = true
+			evadeAngle = (targetVector(shipPosition, closest.position) + 30) % 360
 		}
 		let v = targetVector(shipPosition, closest.position)
 		if(env.shipdata.rotation - v < 2){ 
@@ -74,19 +81,20 @@ ship.on("nextCommand", (env: Environment) => {
 		}
 		return new Rotate(env.shipdata.rotation - v)
 	}
-	if(aggro) {
+	if(aggro && env.shipdata.currentEnergy > 70) {
 		aggro = false
 		scanned = false
 		return new FireTorpedo("F")
 	}
-	if(evade && env.shipdata.speed < env.shipdata.maxSpeed 
-		&& (initialRotation == null || env.shipdata.rotation == initialRotation)) {
+	if(evade && env.shipdata.speed < (env.shipdata.maxSpeed / 4)
+		&& (Math.abs(env.shipdata.rotation - evadeAngle)) < 2 ) {
 		winston.error(`speed: ${env.shipdata.speed}`)
-		initialRotation = env.shipdata.rotation
+		winston.error(`rotation ${env.shipdata.rotation} evadeAngle ${evadeAngle}`)
 		return new Thrust("B", 3.1, 0.9, true)
 	}
-	if(evade && env.shipdata.rotation && env.shipdata.rotation === initialRotation){
-		return new Rotate(180)
+	if(evade && env.shipdata.rotation && Math.abs(env.shipdata.rotation - evadeAngle) > 2){
+		winston.error(`speed ${env.shipdata.speed} rotation ${env.shipdata.rotation} evadeAngle ${evadeAngle}`)
+		return new Rotate(env.shipdata.rotation -  evadeAngle)
 	}
 	let targetRot = Math.abs(env.shipdata.rotation - ((initialRotation + 180) % 360))
 
